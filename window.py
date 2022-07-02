@@ -266,8 +266,9 @@ class FormWindow(QWidget,Ui_Form):
 
 
 if __name__ == "__main__":
+    print(1212)
     app = QApplication(argv)
-    ui = FormWindow()
+    ui = FormWindow("")
     ui=CandyWindow.createWindow(ui, title='启维台账工具', theme='blueGreen')
     ui.show()
     exit(app.exec_())
