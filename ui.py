@@ -14,7 +14,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(1219, 732)
+        MainWindow.resize(1211, 703)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -83,6 +83,7 @@ class Ui_MainWindow(object):
         self.horizontalLayout_3.addWidget(self.label_5)
         self.verticalLayout.addLayout(self.horizontalLayout_3)
         self.tableWidget = QtWidgets.QTableWidget(self.centralwidget)
+        self.tableWidget.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
         self.tableWidget.setObjectName("tableWidget")
         self.tableWidget.setColumnCount(13)
         self.tableWidget.setRowCount(0)

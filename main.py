@@ -1,7 +1,8 @@
 # -*- coding:utf-8 -*-
 from sys import argv,exit
-from PyQt5.QtWidgets import QMainWindow,QApplication,QComboBox,QAbstractItemView,QHeaderView,QTableWidget,QPushButton,QTableWidgetItem,QDialog
+from PyQt5.QtWidgets import QMainWindow,QApplication,QComboBox,QAbstractItemView,QHeaderView,QTableWidget,QPushButton,QTableWidgetItem,QDialog,QMenu,QAction
 from PyQt5.QtCore import QObject,pyqtSignal,Qt
+from PyQt5.Qt import QCursor
 from threading import Thread
 from ui import Ui_MainWindow
 from QCandyUi import CandyWindow
@@ -32,14 +33,24 @@ class Mainwindow(QMainWindow,Ui_MainWindow):
 
         self.tableWidget.resizeRowsToContents()#列自适应尺寸
         self.tableWidget.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
-        self.pushButton_5.clicked.connect(self.details)
+        self.tableWidget.setEditTriggers(QAbstractItemView.NoEditTriggers)
+        self.tableWidget.customContextMenuRequested['QPoint'].connect(self.menu)
         self.pushButton_3.clicked.connect(lambda :self.queryButton(0))
-        self.pushButton_4.clicked.connect(self.updateRes)
         self.pushButton_7.clicked.connect(lambda :self.queryButton(-1))
         self.pushButton_6.clicked.connect(lambda :self.queryButton(1))
 
 
+    def menu(self):
+        cmenu=QMenu(self.tableWidget)
+        addAction = QAction("添加", self)
+        addAction.setData(1)
+        cmenu.addAction(addAction)
+        addAction.triggered.connect(lambda :self.addRow())
+        self.addAction(addAction)
+        cmenu.exec_(QCursor.pos())
 
+    def addRow(self,contractNum=""):
+        self.details(contractNum)
     def queryButton(self,mode):
         '''
 
@@ -83,7 +94,7 @@ class Mainwindow(QMainWindow,Ui_MainWindow):
                 row = 0
                 for p in projectList:
                     contractNum = QPushButton(str(p["contractNum"]))
-                    contractNum.clicked.connect(self.details)
+                    contractNum.clicked.connect(lambda :self.details())
                     self.tableWidget.setCellWidget(row,0,contractNum)
 
                     self.tableWidget.setItem(row, 1, QTableWidgetItem(p["supplier"]))
@@ -101,13 +112,11 @@ class Mainwindow(QMainWindow,Ui_MainWindow):
                     self.tableWidget.setItem(row, 5, QTableWidgetItem(str(p["saleAmt"])))
                     self.tableWidget.item(row, 5).setTextAlignment(Qt.AlignCenter)
 
-                    receivedAmt = QPushButton(str(p["receivedAmt"]))
-                    self.tableWidget.setCellWidget(row, 5, receivedAmt)
-                    receivedAmt.clicked.connect(lambda: self.details(0))
+                    self.tableWidget.setItem(row, 5, QTableWidgetItem(str(p["receivedAmt"])))
+                    self.tableWidget.item(row, 5).setTextAlignment(Qt.AlignCenter)
 
-                    paidAmt = QPushButton(str(p["paidAmt"]))
-                    self.tableWidget.setCellWidget(row, 6, paidAmt)
-                    paidAmt.clicked.connect(lambda: self.details(1))
+                    self.tableWidget.setItem(row, 6, QTableWidgetItem(str(p["paidAmt"])))
+                    self.tableWidget.item(row, 6).setTextAlignment(Qt.AlignCenter)
 
                     self.tableWidget.setItem(row, 7, QTableWidgetItem(str(p["nt"])))
                     self.tableWidget.item(row, 7).setTextAlignment(Qt.AlignCenter)
@@ -118,10 +127,9 @@ class Mainwindow(QMainWindow,Ui_MainWindow):
                     self.tableWidget.setItem(row, 9, QTableWidgetItem(p["makeFapiaoDate"]))
                     self.tableWidget.item(row, 9).setTextAlignment(Qt.AlignCenter)
 
-                    combox = QComboBox()
-                    combox.addItems(['进行中', '已结束'])
-                    combox.setCurrentText(p["pjStatus"])
-                    self.tableWidget.setCellWidget(row, 10, combox)
+                    self.tableWidget.setItem(row, 10, QTableWidgetItem(p["pjStatus"]))
+                    self.tableWidget.item(row, 10).setTextAlignment(Qt.AlignCenter)
+
 
                     self.tableWidget.setItem(row, 11, QTableWidgetItem(p["reverse"]))
                     self.tableWidget.item(row, 11).setTextAlignment(Qt.AlignCenter)
@@ -140,55 +148,18 @@ class Mainwindow(QMainWindow,Ui_MainWindow):
 
 
 
-    def addRow(self):
-        cur_row = self.tableWidget.rowCount()
-        self.tableWidget.setRowCount(cur_row + 1)
-        button = QPushButton()
-        self.tableWidget.setCellWidget(cur_row, 0, button)
-        button.clicked.connect()
-
-    def delRow(self):
-        if self.tableWidget.currentRow() ==-1:
-            self.tips("请选中一条记录")
-            return
-
-        so = SignalStore()
-        methodName="delProject"
-        if self.tips("请确认是否删除"):
-            rowNum=self.tableWidget.currentRow()
-            if self.tableWidget.item(rowNum,0):
-                contractNum=self.tableWidget.item(rowNum,0).text()
-            else:
-                self.tableWidget.removeRow(rowNum)
-                return
-        dataParam = {
-            "contractNum": contractNum
-        }
-        def calback(res):
-            if res=="error":
-                self.tips("系统异常")
-            else:
-                self.tableWidget.removeRow(rowNum)
-
-        def func():
-            res=self.send(methodName, dataParam)
-            so._signal.emit(res)
 
 
-        t=Thread(target=func)
-        so._signal.connect(calback)
-        t.start()
 
 
-    def details(self):
-        row=self.tableWidget.currentRow()
-        if not self.tableWidget.item(row,0) or not self.tableWidget.item(row,0).text():
-            contractNum=""
-        else:
-            contractNum=self.tableWidget.item(row,0).text()
+
+    def details(self,contractNum=None):
+        if contractNum==None:
+            contractNum=self.tableWidget.cellWidget(self.tableWidget.currentRow(),0).text()
         ui1 = FormWindow(contractNum)
         ui1 = CandyWindow.createWindow(ui1, title='明细',ico_path='./conf/ico.png', theme='blueGreen')
         ui1.show()
+
 
     def updateRes(self):
 

@@ -1,7 +1,7 @@
 # -*- coding:utf-8 -*-
 from sys import argv,exit
-from PyQt5.QtWidgets import QApplication,QHeaderView,QWidget,QTableWidgetItem,QDialog,QMenu,QAction,QComboBox,QDateEdit,QAbstractSpinBox,QDateTimeEdit,QDoubleSpinBox
-from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import QApplication,QHeaderView,QWidget,QTableWidgetItem,QDialog,QMenu,QAction,QComboBox,QDateEdit,QAbstractSpinBox,QDateTimeEdit,QDoubleSpinBox,QLineEdit
+from PyQt5.QtCore import Qt,QDate
 from PyQt5.Qt import QCursor
 from info import Ui_Form
 from QCandyUi import CandyWindow
@@ -10,12 +10,20 @@ from alert import DialogWindow
 import requests
 from decimal import Decimal
 
+# def ui_window(contractNum):
+#     ui1 = FormWindow(contractNum)
+#     ui2 = CandyWindow.createWindow(ui1, title='明细', ico_path='./conf/ico.png', theme='blueGreen')
+#     ui2.show()
+#     ui1.buttonBox.accepted.connect(lambda: ok_func(ui2))
+
+
 
 class FormWindow(QWidget,Ui_Form):
     def __init__(self,contractNum):
         super(FormWindow,self).__init__()
         self.setupUi(self)
         self.contractNum=contractNum
+        print(self.contractNum)
         self.initUI()
 
     def initUI(self):
@@ -37,7 +45,7 @@ class FormWindow(QWidget,Ui_Form):
     def delContract(self):
 
         from main import  SignalStore
-        contractNum=self.lineEdit_2.text()
+        contractNum=self.contract_line.text()
         if not contractNum:
             self.tips("请输入合同号")
             return
@@ -51,6 +59,8 @@ class FormWindow(QWidget,Ui_Form):
         def calback(res):
             if res=="error":
                 self.tips("系统异常")
+            else:
+                self.window().close()
         def func():
             res=self.send(methodName, dataParam)
             so._signal.emit(res)
@@ -61,7 +71,7 @@ class FormWindow(QWidget,Ui_Form):
     def updateContract(self):
 
         from main import  SignalStore
-        contractNum=self.lineEdit_2.text()
+        contractNum=self.contract_line.text()
         if not contractNum:
             self.tips("请输入合同号")
             return
@@ -69,9 +79,12 @@ class FormWindow(QWidget,Ui_Form):
         methodName="updateProject"
         if not self.tips("请确认是否保存"):
             return
+        supplier = self.findChild(QLineEdit, 'lineEdit_10')
+
         dataParam = {
             "contractNum": contractNum,
-            "supplier" : self.lineEdit_10.text(),  # 供应商
+            # "supplier" : supplier.text(),  # 供应商
+            "supplier": self.lineEdit_10.text(),  # 供应商
             "custormer" : self.lineEdit_3.text(),  # 客户
             "product": self.lineEdit.text(),
             "purchaseNum":self.spinBox_2.value(),
@@ -103,7 +116,7 @@ class FormWindow(QWidget,Ui_Form):
                 "recPayDate":self.tableWidget.cellWidget(row,0).text(),
                 "amt":self.tableWidget.cellWidget(row,1).value(),
                 "flag":0 if self.tableWidget.cellWidget(row,2).currentText()=="收入" else 1,
-                "reverse":self.tableWidget.item(row,3).value()
+                "reverse":self.tableWidget.cellWidget(row,3).text()
             })
         def calback(res):
             if res=="error":
@@ -150,7 +163,7 @@ class FormWindow(QWidget,Ui_Form):
         addAction = QAction("添加", self)
         addAction.setData(1)
         cmenu.addAction(addAction)
-        addAction.triggered.connect(self.addRow)
+        addAction.triggered.connect(lambda :self.addRow())
         self.addAction(addAction)
         delAction = QAction("删除", self)
         delAction.setData(1)
@@ -175,7 +188,7 @@ class FormWindow(QWidget,Ui_Form):
         dateEdit.setCurrentSection(QDateTimeEdit.YearSection)
         dateEdit.setDisplayFormat("yyyy-MM-dd")
         dateEdit.setAlignment(Qt.AlignCenter)
-        dateEdit.setDate(date)
+        dateEdit.setDate(QDate(*[int(s) for s in date.split("-")]))
 
         doubleSpinbox=QDoubleSpinBox()
         doubleSpinbox.setButtonSymbols(QAbstractSpinBox.NoButtons)
@@ -184,11 +197,12 @@ class FormWindow(QWidget,Ui_Form):
         doubleSpinbox.setValue(amt)
         doubleSpinbox.valueChanged.connect(self.recPayAmtCal)
 
+        lineEdit=QLineEdit(reverse)
+        lineEdit.setAlignment(Qt.AlignCenter)
         self.tableWidget.setCellWidget(cur_row,0,dateEdit)
         self.tableWidget.setCellWidget(cur_row,1,doubleSpinbox)
         self.tableWidget.setCellWidget(cur_row, 2, combox)
-        self.tableWidget.setItem(cur_row,3,QTableWidgetItem(reverse))
-        self.tableWidget.item(cur_row, 3).setTextAlignment(Qt.AlignCenter)
+        self.tableWidget.setCellWidget(cur_row, 3, lineEdit)
 
     def delRow(self):
         if self.tableWidget.currentRow() == -1:
@@ -202,7 +216,10 @@ class FormWindow(QWidget,Ui_Form):
 
     def queryDetail(self):
         if self.contractNum=="":
+            self.pushButton_2.setEnabled(False)
+            self.contract_line.setEnabled(True)
             return
+
         methodName="queryDetail"
         dataParam={
             "contractNum":self.contractNum
@@ -212,23 +229,26 @@ class FormWindow(QWidget,Ui_Form):
             self.tips("系统异常")
             return
         pj=eval(pj)
+
+        self.contract_line.setText(pj["contractNum"])
         self.lineEdit_10.setText(pj["supplier"])  # 供应商
         self.lineEdit_3.setText(pj["custormer"])  # 客户
+        self.lineEdit.setText(pj["product"])
         self.doubleSpinBox_4.setValue(pj["purchaseAmt"])  # 采购金额
         self.doubleSpinBox_15.setValue(pj["cost"]) # 成本
         self.doubleSpinBox_13.setValue(pj["receivedAmt"])  # 累计收款金额
         self.doubleSpinBox_5.setValue(pj["inputVat"])  # 进项税额
         self.doubleSpinBox.setValue(pj["saleAmt"])  # 销售金额
         self.doubleSpinBox_7.setValue(pj["inputAmt"])  # 收入
-        self.doubleSpinBox_14.setValue("paidAmt")  # 累计付款金额
+        self.doubleSpinBox_14.setValue(pj["paidAmt"])  # 累计付款金额
         self.doubleSpinBox_6.setValue(pj["outputVat"])  # 销项税额
         self.doubleSpinBox_12.setValue(pj["grossPft"])  # 毛利
         self.doubleSpinBox_9.setValue(pj["addTax"])  # 增值税
         self.doubleSpinBox_8.setValue(pj["surTax"])  # 附加税
         self.doubleSpinBox_10.setValue(pj["stampTax"])  # 印花税
         self.doubleSpinBox_11.setValue(pj["nt"])  # 净利润
-        self.dateEdit.setDate(pj["inputFapiaoDate"])  # 收票日期
-        self.dateEdit_2.setDate(pj["makeFapiaoDate"]) # 开票日期
+        self.dateEdit.setDate(QDate(*[int(s) for s in pj["inputFapiaoDate"].split("-")]))  # 收票日期
+        self.dateEdit_2.setDate(QDate(*[int(s) for s in pj["makeFapiaoDate"].split("-")])) # 开票日期
         self.comboBox.setCurrentText(pj["pjStatus"])  # 项目状态
         self.lineEdit_4.setText(pj["reverse"])  # 备注
         if pj["details"]!=[]:
@@ -239,7 +259,7 @@ class FormWindow(QWidget,Ui_Form):
     def send(self,methodName,dataParam):
         from main import ip
         res = requests.post("{}/{}".format(ip, methodName), json=dataParam)
-        print(res.text)
+        # print(res.text)
         if res.text!="error":
             res = eval(res.text)
         else:
@@ -266,7 +286,6 @@ class FormWindow(QWidget,Ui_Form):
 
 
 if __name__ == "__main__":
-    print(1212)
     app = QApplication(argv)
     ui = FormWindow("")
     ui=CandyWindow.createWindow(ui, title='启维台账工具', theme='blueGreen')
