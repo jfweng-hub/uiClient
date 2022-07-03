@@ -15,6 +15,9 @@ class Ui_Form(object):
     def setupUi(self, Form):
         Form.setObjectName("Form")
         Form.resize(613, 650)
+        icon = QtGui.QIcon()
+        icon.addPixmap(QtGui.QPixmap("./conf/ico.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        Form.setWindowIcon(icon)
         self.verticalLayout_2 = QtWidgets.QVBoxLayout(Form)
         self.verticalLayout_2.setObjectName("verticalLayout_2")
         self.groupBox = QtWidgets.QGroupBox(Form)
@@ -571,7 +574,7 @@ class Ui_Form(object):
 
     def retranslateUi(self, Form):
         _translate = QtCore.QCoreApplication.translate
-        Form.setWindowTitle(_translate("Form", "Form"))
+        Form.setWindowTitle(_translate("Form", "详情"))
         self.groupBox.setTitle(_translate("Form", "详细信息"))
         self.label.setText(_translate("Form", "合同序号"))
         self.label_3.setText(_translate("Form", "客户"))

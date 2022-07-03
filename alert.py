@@ -1,19 +1,16 @@
 # -*- coding:utf-8 -*-
 from sys import argv,exit
 from PyQt5.QtWidgets import QApplication,QDialog
-from dialog import Ui_Dialog
-
-
-
+from PyQt5.QtCore import Qt
+from ui.dialog import Ui_Dialog
 
 
 class DialogWindow(QDialog,Ui_Dialog):
-    def __init__(self,text):
+    def __init__(self,text=""):
         super(DialogWindow,self).__init__()
         self.setupUi(self)
         self.label.setText(text)
-
-
+        self.setWindowFlags(Qt.WindowTitleHint)
 
 
 

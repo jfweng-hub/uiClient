@@ -17,7 +17,11 @@
    </sizepolicy>
   </property>
   <property name="windowTitle">
-   <string>MainWindow</string>
+   <string>启维台账工具</string>
+  </property>
+  <property name="windowIcon">
+   <iconset>
+    <normaloff>conf/ico.png</normaloff>conf/ico.png</iconset>
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QVBoxLayout" name="verticalLayout">
@@ -79,7 +83,7 @@
         </item>
         <item>
          <property name="text">
-          <string>已完成</string>
+          <string>已结束</string>
          </property>
         </item>
        </widget>
@@ -159,12 +163,12 @@
       </column>
       <column>
        <property name="text">
-        <string>累计收款金额</string>
+        <string>累计收款</string>
        </property>
       </column>
       <column>
        <property name="text">
-        <string>累计付款金额</string>
+        <string>累计付款</string>
        </property>
       </column>
       <column>
