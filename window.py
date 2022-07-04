@@ -39,7 +39,23 @@ class FormWindow(QWidget, Ui_Form):
         self.doubleSpinBox_2.valueChanged.connect(self.calculate)
         self.pushButton.clicked.connect(self.updateContract)
         self.pushButton_2.clicked.connect(self.delContract)
+        self.comboBox_2.currentTextChanged.connect(self.inputFapiao)
+        self.comboBox_3.currentTextChanged.connect(self.makeFapiao)
 
+    def makeFapiao(self):
+        if self.comboBox_3.currentText()=="是":
+            self.dateEdit_2.setEnabled(True)
+        else:
+            self.dateEdit_2.setEnabled(False)
+
+    def inputFapiao(self):
+        if self.comboBox_2.currentText()=="是":
+            self.dateEdit.setEnabled(True)
+            self.comboBox_4.setEnabled(True)
+        else:
+            self.dateEdit.setEnabled(False)
+            self.comboBox_4.setEnabled(False)
+            self.comboBox_4.setCurrentText("否")
     def delContract(self):
 
         contractNum = self.contract_line.text()
@@ -104,7 +120,10 @@ class FormWindow(QWidget, Ui_Form):
             "surTax": self.doubleSpinBox_8.value(),  # 附加税
             "stampTax": self.doubleSpinBox_10.value(),  # 印花税
             "nt": self.doubleSpinBox_11.value(),  # 净利润
+            "isInputFapiao": 0 if self.comboBox_2.currentText() == "否" else 1,  #
             "inputFapiaoDate": self.dateEdit.text(),  # 收票日期
+            "isSend": 0 if self.comboBox_4.currentText() == "否" else 1,  #
+            "isMakeFapiao": 0 if self.comboBox_3.currentText() == "否" else 1,  #
             "makeFapiaoDate": self.dateEdit_2.text(),  # 开票日期
             "pjStatus": self.comboBox.currentText(),  # 项目状态
             "reverse": self.lineEdit_4.text(),  # 备注
@@ -258,7 +277,15 @@ class FormWindow(QWidget, Ui_Form):
         self.doubleSpinBox_8.setValue(pj["surTax"])  # 附加税
         self.doubleSpinBox_10.setValue(pj["stampTax"])  # 印花税
         self.doubleSpinBox_11.setValue(pj["nt"])  # 净利润
+        self.comboBox_2.setCurrentText("否" if pj["isInputFapiao"]==0 else "是") #是否收票
+        if self.comboBox_2.currentText()=="是":
+            self.dateEdit.setEnabled(True)
+            self.comboBox_4.setEnabled(True)
         self.dateEdit.setDate(QDate(*[int(s) for s in pj["inputFapiaoDate"].split("-")]))  # 收票日期
+        self.comboBox_4.setCurrentText("否" if pj["isSend"]==0 else "是")
+        self.comboBox_3.setCurrentText("否" if pj["isMakeFapiao"]==0 else "是") #是否开票
+        if self.comboBox_3.currentText()=="是":
+            self.dateEdit_2.setEnabled(True)
         self.dateEdit_2.setDate(QDate(*[int(s) for s in pj["makeFapiaoDate"].split("-")]))  # 开票日期
         self.comboBox.setCurrentText(pj["pjStatus"])  # 项目状态
         self.lineEdit_4.setText(pj["reverse"])  # 备注

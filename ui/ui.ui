@@ -21,7 +21,7 @@
   </property>
   <property name="windowIcon">
    <iconset>
-    <normaloff>conf/ico.png</normaloff>conf/ico.png</iconset>
+    <normaloff>../conf/ico.png</normaloff>../conf/ico.png</iconset>
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QVBoxLayout" name="verticalLayout">
@@ -174,16 +174,6 @@
       <column>
        <property name="text">
         <string>净利润</string>
-       </property>
-      </column>
-      <column>
-       <property name="text">
-        <string>收票日期</string>
-       </property>
-      </column>
-      <column>
-       <property name="text">
-        <string>开票日期</string>
        </property>
       </column>
       <column>

@@ -160,17 +160,17 @@ class Mainwindow(QMainWindow, Ui_MainWindow):
                     self.tableWidget.setItem(row, 8, QTableWidgetItem(str(p["nt"])))
                     self.tableWidget.item(row, 8).setTextAlignment(Qt.AlignCenter)
 
-                    self.tableWidget.setItem(row, 9, QTableWidgetItem(p["inputFapiaoDate"]))
+                    # self.tableWidget.setItem(row, 9, QTableWidgetItem(p["inputFapiaoDate"]))
+                    # self.tableWidget.item(row, 9).setTextAlignment(Qt.AlignCenter)
+                    #
+                    # self.tableWidget.setItem(row, 10, QTableWidgetItem(p["makeFapiaoDate"]))
+                    # self.tableWidget.item(row, 10).setTextAlignment(Qt.AlignCenter)
+
+                    self.tableWidget.setItem(row, 9, QTableWidgetItem(p["pjStatus"]))
                     self.tableWidget.item(row, 9).setTextAlignment(Qt.AlignCenter)
 
-                    self.tableWidget.setItem(row, 10, QTableWidgetItem(p["makeFapiaoDate"]))
+                    self.tableWidget.setItem(row, 10, QTableWidgetItem(p["reverse"]))
                     self.tableWidget.item(row, 10).setTextAlignment(Qt.AlignCenter)
-
-                    self.tableWidget.setItem(row, 11, QTableWidgetItem(p["pjStatus"]))
-                    self.tableWidget.item(row, 11).setTextAlignment(Qt.AlignCenter)
-
-                    self.tableWidget.setItem(row, 12, QTableWidgetItem(p["reverse"]))
-                    self.tableWidget.item(row, 12).setTextAlignment(Qt.AlignCenter)
 
                     row = row + 1
 
